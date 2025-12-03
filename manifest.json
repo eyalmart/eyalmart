@@ -1,8 +1,8 @@
 {
   "name": "EyalMart",
   "short_name": "EyalMart",
-  "start_url": "/eapp-pwa/",
-  "scope": "/eapp-pwa/",
+  "start_url": "/eyalmart/",
+  "scope": "/eyalmart/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
@@ -19,3 +19,4 @@
     }
   ]
 }
+
