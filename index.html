@@ -13,91 +13,27 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background: #f5f5f5;
-      font-family: Arial, sans-serif;
       overflow: hidden;
     }
-
-    /* Welcome Page */
-    #welcomePage {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-      background: white;
-    }
-
-    #welcomePage img {
-      width: 120px;
-      height: 120px;
-      border-radius: 20px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-      margin-bottom: 20px;
-    }
-
-    #loginBtn {
-      background: #312e81;
-      color: white;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 15px;
-    }
-
-    #appFrame {
+    iframe {
       width: 100%;
       height: 100%;
       border: none;
-      display: none; /* hidden until login */
     }
   </style>
 </head>
 <body>
 
-  <!-- WELCOME SCREEN -->
-  <div id="welcomePage">
-    <img src="icon-192.png" alt="Logo">
+  <!-- Load your Apps Script Web App -->
+  <iframe src="https://script.google.com/macros/s/AKfycbzfM38hs9IyN8KJngtXRYFsdcpcdrN3IVHkOAatXZOGi3t6hmIhNBJwMPOI5ELb-SNR1A/exec"></iframe>
 
-    <h1 style="margin: 0; font-size: 26px; color: #312e81;">
-      Welcome to EyalMart
-    </h1>
-
-    <p style="margin-top: 10px; font-size: 15px; color: #555;">
-      Fast shopping • Secure payments • Smooth experience
-    </p>
-
-    <button id="loginBtn">LOGIN</button>
-  </div>
-
-  <!-- IFRAME (hidden initially) -->
-  <iframe id="appFrame"></iframe>
-
-  <!-- Service Worker -->
+  <!-- Register Service Worker -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./service-worker.js")
         .then(() => console.log("SW registered"))
         .catch(err => console.error("SW registration failed", err));
     }
-  </script>
-
-  <!-- LOGIN BUTTON LOGIC -->
-  <script>
-    document.getElementById("loginBtn").addEventListener("click", function () {
-
-      document.getElementById("welcomePage").style.display = "none";
-
-      const frame = document.getElementById("appFrame");
-      frame.style.display = "block";
-
-      frame.src = "https://script.google.com/macros/s/AKfycbzfM38hs9IyN8KJngtXRYFsdcpcdrN3IVHkOAatXZOGi3t6hmIhNBJwMPOI5ELb-SNR1A/exec";
-    });
   </script>
 
   <!-- INSTALL POPUP -->
@@ -121,9 +57,10 @@
       position: relative;
     ">
       
-      <img src="icon-192.png"
-           style="width: 70px; margin-top: -60px; border-radius: 50%;
-           background: white; padding: 10px;
+      <!-- Logo -->
+      <img src="icon-192.png" 
+           style="width: 70px; margin-top: -60px; border-radius: 50%; 
+           background: white; padding: 10px; 
            box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
 
       <h2 style="margin-top: 15px; font-size: 20px; font-weight: bold;">
@@ -161,6 +98,8 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
+
+      // Show popup
       document.getElementById("installPopup").style.display = "flex";
     });
 
@@ -168,6 +107,7 @@
       if (!deferredPrompt) return;
 
       deferredPrompt.prompt();
+
       await deferredPrompt.userChoice;
 
       document.getElementById("installPopup").style.display = "none";
@@ -181,3 +121,11 @@
 
 </body>
 </html>
+
+
+
+
+
+
+
+
