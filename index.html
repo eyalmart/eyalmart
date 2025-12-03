@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EyalMart</title>
 
-  <link rel="manifest" href="manifest.json" />
+  <!-- Correct manifest path for GitHub Pages folder -->
+  <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#ffffff" />
 
   <style>
@@ -14,6 +15,7 @@
       padding: 0;
       height: 100%;
       overflow: hidden;
+      background: #ffffff;
     }
     iframe {
       width: 100%;
@@ -25,14 +27,16 @@
 <body>
 
   <!-- Load your Apps Script Web App -->
-  <iframe src="https://script.google.com/macros/s/AKfycbzfM38hs9IyN8KJngtXRYFsdcpcdrN3IVHkOAatXZOGi3t6hmIhNBJwMPOI5ELb-SNR1A/exec"></iframe>
+  <iframe 
+    src="https://script.google.com/macros/s/AKfycbzfM38hs9IyN8KJngtXRYFsdcpcdrN3IVHkOAatXZOGi3t6hmIhNBJwMPOI5ELb-SNR1A/exec">
+  </iframe>
 
-  <!-- Register Service Worker -->
+  <!-- Register Service Worker with correct path -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./service-worker.js")
-        .then(() => console.log("SW registered"))
-        .catch(err => console.error("SW registration failed", err));
+        .then(() => console.log("Service Worker registered"))
+        .catch(err => console.error("SW registration failed:", err));
     }
   </script>
 
@@ -58,7 +62,7 @@
     ">
       
       <!-- Logo -->
-      <img src="icon-192.png" 
+      <img src="./icon-192.png" 
            style="width: 70px; margin-top: -60px; border-radius: 50%; 
            background: white; padding: 10px; 
            box-shadow: 0 3px 10px rgba(0,0,0,0.2);">
@@ -99,7 +103,6 @@
       e.preventDefault();
       deferredPrompt = e;
 
-      // Show popup
       document.getElementById("installPopup").style.display = "flex";
     });
 
@@ -107,7 +110,6 @@
       if (!deferredPrompt) return;
 
       deferredPrompt.prompt();
-
       await deferredPrompt.userChoice;
 
       document.getElementById("installPopup").style.display = "none";
@@ -121,11 +123,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
