@@ -1,4 +1,4 @@
-const CACHE_NAME = "eyalmart-cache-v2";
+const CACHE_NAME = "eyalmart-cache-v3"; // bump version
 
 const FILES_TO_CACHE = [
   "./",
@@ -8,38 +8,31 @@ const FILES_TO_CACHE = [
   "./icon-512.png"
 ];
 
-// Install Service Worker
+// Install
 self.addEventListener("install", (event) => {
+  self.skipWaiting(); // activate immediately
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(FILES_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
-  self.skipWaiting();
 });
 
-// Activate - remove old caches
+// Activate – delete ALL old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
+    caches.keys().then(keys =>
       Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+        keys.map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// Fetch handler
+// Fetch
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return (
-        response ||
-        fetch(event.request).catch(() => caches.match("./index.html"))
-      );
+    caches.match(event.request).then(res => {
+      return res || fetch(event.request);
     })
   );
 });
