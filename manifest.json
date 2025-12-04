@@ -1,13 +1,15 @@
 {
+  "id": "eyalmart.app",
   "name": "EyalMart",
   "short_name": "EyalMart",
   "description": "EyalMart shopping app — fast, simple, and secure.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#312e81",
   "orientation": "portrait-primary",
+  "prefer_related_applications": false,
 
   "icons": [
     {
@@ -19,6 +21,35 @@
       "src": "./icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "./icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "./screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Browse products"
+    },
+    {
+      "src": "./screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Fast checkout"
     }
   ]
 }
