@@ -1,4 +1,6 @@
-const CACHE_NAME = "eyalmart-cache-v3"; // bump version
+// 🔥 NEW VERSION — bump this to force-update all users instantly
+const CACHE_VERSION = "eyalmart-cache-v3";  
+const CACHE_NAME = CACHE_VERSION;
 
 const FILES_TO_CACHE = [
   "./",
@@ -8,31 +10,54 @@ const FILES_TO_CACHE = [
   "./icon-512.png"
 ];
 
-// Install
+// --------------------------------------------------
+// INSTALL — Cache new files immediately
+// --------------------------------------------------
 self.addEventListener("install", (event) => {
-  self.skipWaiting(); // activate immediately
+  console.log("[SW] Installing new version:", CACHE_NAME);
+
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
   );
+
+  self.skipWaiting(); // ⬅️ Instantly activate the new SW
 });
 
-// Activate – delete ALL old caches
+// --------------------------------------------------
+// ACTIVATE — Delete ALL previous caches for a clean start
+// --------------------------------------------------
 self.addEventListener("activate", (event) => {
+  console.log("[SW] Activating new version, clearing old caches.");
+
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.map(key => caches.delete(key))
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => {
+            console.log("[SW] Deleting old cache:", key);
+            return caches.delete(key);
+          })
       )
     )
   );
-  self.clients.claim();
+
+  self.clients.claim(); // ⬅️ Take control immediately
 });
 
-// Fetch
+// --------------------------------------------------
+// FETCH — Network-first fallback to cache
+// --------------------------------------------------
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then(res => {
-      return res || fetch(event.request);
-    })
+    fetch(event.request)
+      .then(response => {
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request).then(resp => {
+          return resp || caches.match("./index.html");
+        });
+      })
   );
 });
