@@ -1,4 +1,5 @@
-const CACHE_NAME = "eyalmart-cache-v1";
+const CACHE_NAME = "eyalmart-cache-v2";
+
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
