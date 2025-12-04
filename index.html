@@ -31,20 +31,35 @@
     src="https://script.google.com/macros/s/AKfycbxEq-JDFd7gfilVMPpYPMos2fE19D7N_d_qhhhVzeLIm-pUyjdYE6BUMlX8VKPuVAA_/exec">
   </iframe>
 
-  <!-- Register + Clean Old Service Workers -->
+  <!-- SERVICE WORKER: FORCE UPDATE + CLEAN OLD CACHE -->
   <script>
     if ("serviceWorker" in navigator) {
 
-      // Remove any old service workers (fixes Google Docs cache issue)
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => reg.unregister());
+      // STEP 1 — Remove ANY old SW registrations (fixes Google Docs cached page)
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.unregister());
       });
 
-      // Register NEW service worker after clearing old ones
+      // STEP 2 — Register NEW service worker
       window.addEventListener("load", () => {
         navigator.serviceWorker
           .register("./service-worker.js")
-          .then(() => console.log("Service Worker registered (fresh)"))
+          .then((reg) => {
+            console.log("Service Worker registered (fresh)");
+
+            // STEP 3 — Force reload when new SW is installed
+            reg.addEventListener("updatefound", () => {
+              const newSW = reg.installing;
+
+              newSW.addEventListener("statechange", () => {
+                if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+                  console.log("A new version is available — forcing reload...");
+                  window.location.reload(); // 🔥 Auto-refresh app
+                }
+              });
+            });
+
+          })
           .catch(err => console.error("SW registration failed:", err));
       });
     }
@@ -112,16 +127,13 @@
     window.addEventListener("beforeinstallprompt", (e) => {
       e.preventDefault();
       deferredPrompt = e;
-
       document.getElementById("installPopup").style.display = "flex";
     });
 
     document.getElementById("btnInstall").addEventListener("click", async () => {
       if (!deferredPrompt) return;
-
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
-
       document.getElementById("installPopup").style.display = "none";
       deferredPrompt = null;
     });
