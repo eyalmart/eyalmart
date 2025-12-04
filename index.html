@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EyalMart</title>
 
-  <!-- Correct manifest path for GitHub Pages folder -->
+  <!-- Correct manifest path -->
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#ffffff" />
 
@@ -26,17 +26,27 @@
 </head>
 <body>
 
-  <!-- Load your Apps Script Web App -->
+  <!-- Apps Script Web App -->
   <iframe 
     src="https://script.google.com/macros/s/AKfycbxEq-JDFd7gfilVMPpYPMos2fE19D7N_d_qhhhVzeLIm-pUyjdYE6BUMlX8VKPuVAA_/exec">
   </iframe>
 
-  <!-- Register Service Worker with correct path -->
+  <!-- Register + Clean Old Service Workers -->
   <script>
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js")
-        .then(() => console.log("Service Worker registered"))
-        .catch(err => console.error("SW registration failed:", err));
+
+      // Remove any old service workers (fixes Google Docs cache issue)
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((reg) => reg.unregister());
+      });
+
+      // Register NEW service worker after clearing old ones
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./service-worker.js")
+          .then(() => console.log("Service Worker registered (fresh)"))
+          .catch(err => console.error("SW registration failed:", err));
+      });
     }
   </script>
 
@@ -123,4 +133,3 @@
 
 </body>
 </html>
-
