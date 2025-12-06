@@ -1,7 +1,21 @@
-// 🔥 NEW VERSION — bump this to force-update all users instantly
-const CACHE_VERSION = "eyalmart-cache-v10";  
+// ------------------------------------------------------------
+// 🚀 FORCE VERSION UPDATE — change this to refresh all devices
+// ------------------------------------------------------------
+const CACHE_VERSION = "eyalmart-v27";
 const CACHE_NAME = CACHE_VERSION;
 
+// ------------------------------------------------------------
+// ❗ NEVER CACHE THESE URLs (especially Razorpay checkout.js)
+// ------------------------------------------------------------
+const NEVER_CACHE = [
+  "checkout.razorpay.com",
+  "razorpay.com",
+  "/sw.js"
+];
+
+// ------------------------------------------------------------
+// FILES SAFE TO CACHE (app shell only)
+// ------------------------------------------------------------
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -10,24 +24,28 @@ const FILES_TO_CACHE = [
   "./icon-512.png"
 ];
 
-// --------------------------------------------------
-// INSTALL — Cache new files immediately
-// --------------------------------------------------
+// ------------------------------------------------------------
+// INSTALL — Cache app shell immediately
+// ------------------------------------------------------------
 self.addEventListener("install", (event) => {
-  console.log("[SW] Installing new version:", CACHE_NAME);
+  console.log("[SW] Installing:", CACHE_NAME);
 
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(FILES_TO_CACHE).catch(err => {
+        console.warn("[SW] Cache install failed:", err);
+      });
+    })
   );
 
-  self.skipWaiting(); // ⬅️ Instantly activate the new SW
+  self.skipWaiting(); // activate immediately
 });
 
-// --------------------------------------------------
-// ACTIVATE — Delete ALL previous caches for a clean start
-// --------------------------------------------------
+// ------------------------------------------------------------
+// ACTIVATE — Remove all OLD caches
+// ------------------------------------------------------------
 self.addEventListener("activate", (event) => {
-  console.log("[SW] Activating new version, clearing old caches.");
+  console.log("[SW] Activating & cleaning old caches…");
 
   event.waitUntil(
     caches.keys().then(keys =>
@@ -42,22 +60,49 @@ self.addEventListener("activate", (event) => {
     )
   );
 
-  self.clients.claim(); // ⬅️ Take control immediately
+  self.clients.claim(); // take control immediately
 });
 
-// --------------------------------------------------
-// FETCH — Network-first fallback to cache
-// --------------------------------------------------
+// ------------------------------------------------------------
+// FETCH HANDLER — Hybrid caching strategy
+// ------------------------------------------------------------
 self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  const url = request.url;
+
+  // 🔥 1) Never cache Razorpay or dynamic scripts
+  if (NEVER_CACHE.some(blocked => url.includes(blocked))) {
+    return event.respondWith(fetch(request));
+  }
+
+  // 🔵 2) Always network-first for HTML (ensures latest UI)
+  if (request.headers.get("accept")?.includes("text/html")) {
+    return event.respondWith(
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
+  }
+
+  // 🟢 3) Cache-first for static assets (fast loading)
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request).then(resp => {
-          return resp || caches.match("./index.html");
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          return response;
+        })
+        .catch(() => {
+          // fallback to index.html for offline mode
+          return caches.match("./index.html");
         });
-      })
+    })
   );
 });
